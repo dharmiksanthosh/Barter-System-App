@@ -1,8 +1,8 @@
 import React,{Component} from 'react';
-import { Text, View, StyleSheet, TextInput, TouchableOpacity, Alert, Image } from 'react-native';
-import Constants from 'expo-constants';
+import { Text, View, StyleSheet, TextInput, TouchableOpacity, Alert, Image, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import firebase from 'firebase';
-import db from '../config'
+import Header from '../conponents/Header';
+import db from '../config';
 
 export default class Login extends Component {
   constructor(){
@@ -10,107 +10,119 @@ export default class Login extends Component {
       this.state = {emailId:'', passward:''}
     }
 
-  UserLogin = (emailId,passward)=>{
-    return(
-      firebase.auth().signInWithEmailAndPassword(emailId,passward).then(()=>{
-        return(
-          Alert.alert('Login Successful')
-        )
-        })
-        .catch((error)=>{
-          return(
-            Alert.alert(error.message)
-          )
-        }
-      )
-      )
-  }
+    login = async (email,password)=>{
+        if (email && password) {
+            try {
+                const response = await firebase.auth().signInWithEmailAndPassword(email,password)
+                return Alert.alert('Loged in Succesfully')
+            } catch (error) {
+                switch (error.code) {
+                    case 'auth/user-not-found':
+                            Alert.alert('User does not exists', 'User Does Not Exist, please Sign Up');
+                            console.log('User does not exists');
+                        break;
+                    case 'auth/invaild-email':
+                            Alert.alert('Incorrect email or password');
+                            console.log('incorrect email or password');
+                        break;
+                    default:
 
-    UserSignUp = (emailId,passward)=>{
-    return(
-      firebase.auth().createUserWithEmailAndPassword(emailId,passward).then(()=>{
-        return(
-          Alert.alert('SignUp Successful')
-        )
-        })
-        .catch((error)=>{
-          return(
-            Alert.alert(error.message)
-          )
+                        break;
+                }
+            }
+        } else {
+            Alert.alert('Enter Email and Password')
         }
-      )
-      )
-  }
-
+    }
+    userSignUp = async (email,password,cpassword)=>{
+        if (password == cpassword) {
+            firebase.auth().createUserWithEmailAndPassword(email,password)
+                .then((response)=>{
+                    return Alert.alert('User Added','User Added Succesfully')
+                })
+                .catch(function(error){
+                    var errorCode = error.code;
+                    var errorMessage = error.message;
+                    return Alert.alert(errorMessage)
+                })
+            db.collection('Users').add({
+                first_name: this.state.first_name,
+                last_name: this.state.last_name,
+                address: this.state.address,
+                contact: this.state.contact,
+                username: this.state.email
+            })
+        } else {
+            return Alert.alert('Password does not match')
+        }
+    }
   render(){
       return (
-        <View style={styles.container}>
-     <View style={styles.container}>
-      <Text style = {styles.text}>Barter System App</Text>
-      <Text style = {styles.text2}>Start Barter System Today</Text>
-      <Image style={{width:200,height:200,marginLeft:70,marginTop:-500}} source ={{uri:'https://thumbs.dreamstime.com/b/                       barter-commerce-trade-transaction-economic-concept-exchange-swap-goods-drawing-illustration-vector-75029629.jpg'}}/>
-    </View>
-
-    <View style={styles.container2}>
-      <TextInput style = {styles.loginbox}
-      placeholder = 'abc@xyz.com'
-      keyboardType = 'email-address'
-      onChangeText = {(text)=>{ this.setState({ emailId: text }) }}
-      ></TextInput>
-
-      <TextInput style = {styles.loginbox}
-      placeholder = 'enter your passward'
-      secureTextEntry = 'passward'
-      onChangeText = {(text)=>{ this.setState({ passward: text }) }}>
-      </TextInput>
-
-      <TouchableOpacity style = {styles.button} onPress={()=>{
-        this.UserLogin(this.state.emailId,this.state.passward)
-      }}>
-      <Text>Log In</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity  style = {styles.button}
-      onPress = {()=>{this.UserSignUp(this.state.emailId,this.state.passward)}}
-      >
-      <Text>Sign Up</Text>
-      </TouchableOpacity>
-    </View>
-    </View>
-
-  );
+        <KeyboardAvoidingView behavior={Platform.OS === "android" ? "padding" : "height"} style={styles.container}>
+                <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                    <View>
+                        <Header/>
+                    <View>
+                        <Image style={{width:'256px',height:'157.5px',margin:30,marginBottom:50,alignSelf:'center'}} source ={require('../assets/barter.png')}/>
+                    </View>
+                    <View styles={styles.inputView}>
+                        <View style={{flexDirection:'row',alignSelf:'center',marginBottom:15}}>
+                            <Image style={{width:25,height:20,marginRight:-32,marginTop:7}} source={require('../assets/mail.png')}/>
+                            <TextInput
+                                style={styles.input}
+                                placeholder="abc@example.com"
+                                keyboardType="email-address"
+                                onChangeText={(text)=>{this.setState({email:text})}}/>
+                        </View>
+                        <View style={{flexDirection:'row',alignSelf:'center'}}>
+                            <Image style={{width:20,height:20,marginRight:-28,marginTop:5}} source={require('../assets/pw.png')}/>
+                            <TextInput
+                                style={styles.input}
+                                placeholder="Enter Password"
+                                secureTextEntry={true}
+                                onChangeText={(text)=>{this.setState({password:text})}}/>
+                        </View>
+                    </View>
+                    <View>
+                        <TouchableOpacity
+                            style={[styles.login,{marginTop:10}]}
+                            onPress={()=>{
+                                this.login(this.state.email,this.state.password)
+                            }}>
+                                <Text style={styles.loginText}>Login</Text>
+                        </TouchableOpacity>
+                    </View>
+                    <View>
+                        <TouchableOpacity
+                            style={[styles.login,{marginTop:5}]}
+                            onPress={()=>{}}>
+                                <Text style={styles.loginText}>Sign Up</Text>
+                        </TouchableOpacity>
+                    </View>
+                    </View>
+                </TouchableWithoutFeedback>
+            </KeyboardAvoidingView>
+    );
   }
 
   }
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    backgroundColor: '#68C6B8',
+  input: {
+      width:250,
+      height:35,
+      borderWidth:2,
+      borderRadius:10,
+      paddingLeft:35
   },
-  text:{
-    marginTop:10,
-    marginBottom:500,
-    alignSelf:'center',
-    fontSize:25,
-    textDecorationLine: 'underline',
-  },
-  text2:{
-    marginTop:10,
-    alignSelf:'center',
-    fontSize:15,
-  },
-  loginbox:{
-    borderColor:'black',
-    justifyContent:'center',
-    backgroundColor:'white',
-    marginBottom:5,
-    borderRadius:10
-  },
-  container2:{
-    flex:1,
-    alignItems:'center',
-    marginTop:1,
+  login: {
+      height:30,
+      width:90,
+      borderWidth:2,
+      borderRadius:50,
+      justifyContent:'center',
+      alignItems:'center',
+      backgroundColor:'#e8a41f',
+      alignSelf: 'center'
   },
   button:{
     borderColor:'white',
