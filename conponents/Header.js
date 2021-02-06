@@ -5,7 +5,7 @@ export default class Header extends React.Component {
   render() {
     return (
       <TouchableOpacity style={styles.textContainer}>
-        <Text style={styles.text}>Book Club</Text>
+        <Text style={styles.text}>Barter System</Text>
       </TouchableOpacity>
     );
   }

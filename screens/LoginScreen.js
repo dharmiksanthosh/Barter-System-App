@@ -1,20 +1,96 @@
 import React,{Component} from 'react';
-import { Text, View, StyleSheet, TextInput, TouchableOpacity, Alert, Image, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import { Text, View, StyleSheet, TextInput, TouchableOpacity, Alert, Image, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard, Modal, ScrollView } from 'react-native';
 import firebase from 'firebase';
 import Header from '../conponents/Header';
 import db from '../config';
 
 export default class Login extends Component {
-  constructor(){
-    super()
-      this.state = {emailId:'', passward:''}
+    constructor(){
+        super();
+        this.state={
+            password:'',
+            email:'',
+            isModalVisible: false,
+            first_name: '',
+            last_Name: '',
+            address: '',
+            contact: '',
+            comfirmPassword: ''
+        }
     }
-
+    showModal = ()=>{
+        return(
+            <Modal
+                animationType='fade'
+                transparent={true}
+                visible={this.state.isModalVisible}>
+                    <View style={styles.modal}>
+                        <ScrollView style={styles.modalScroll}>
+                            <KeyboardAvoidingView behavior={Platform.OS === "android" ? "padding" : "height"} style={styles.container}>
+                                <Text style={styles.modalTitle}>Registration</Text>
+                                <TextInput
+                                    style={styles.modalInput}
+                                    placeholder={"First Name"}
+                                    onChangeText={(text)=>{this.setState({first_name:text})}}
+                                    maxLength={15}/>
+                                <TextInput
+                                    style={styles.modalInput}
+                                    placeholder={"Last Name"}
+                                    onChangeText={(text)=>{this.setState({last_name:text})}}
+                                    maxLength={15}/>
+                                <TextInput
+                                    style={styles.modalInput}
+                                    placeholder={"Address"}
+                                    onChangeText={(text)=>{this.setState({address:text})}}
+                                    multiline={true}/>
+                                <TextInput
+                                    style={styles.modalInput}
+                                    placeholder={"Mobile no"}
+                                    onChangeText={(text)=>{this.setState({contact:text})}}
+                                    maxLength={10}
+                                    keyboardType={'number-pad'}/>
+                                <TextInput
+                                    style={styles.modalInput}
+                                    placeholder={"Email"}
+                                    onChangeText={(text)=>{this.setState({email:text})}}
+                                    keyboardType={'email-address'}/>
+                                <TextInput
+                                    style={styles.modalInput}
+                                    placeholder={"Password"}
+                                    onChangeText={(text)=>{this.setState({password:text})}}
+                                    secureTextEntry={true}/>
+                                <TextInput
+                                    style={styles.modalInput}
+                                    placeholder={"Confirm password"}
+                                    onChangeText={(text)=>{this.setState({confirmPassword:text})}}
+                                    secureTextEntry={true}/>
+                                <View>
+                                    <TouchableOpacity
+                                        style={[styles.login,{marginTop:10}]}
+                                        onPress={()=>{
+                                            this.userSignUp(this.state.email,this.state.password,this.state.confirmPassword)
+                                        }}>
+                                            <Text style={styles.loginText}>Register</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity
+                                        style={[styles.login,{marginTop:10,marginBottom:10}]}
+                                        onPress={()=>{
+                                            this.setState({isModalVisible:false})
+                                        }}>
+                                            <Text style={styles.loginText}>Cancel</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </KeyboardAvoidingView>
+                        </ScrollView>
+                    </View>
+            </Modal>
+        )
+    }
     login = async (email,password)=>{
         if (email && password) {
             try {
                 const response = await firebase.auth().signInWithEmailAndPassword(email,password)
-                return Alert.alert('Loged in Succesfully')
+                return Alert.alert('Loged in Succesfully'),console.log('loged in succesfully')
             } catch (error) {
                 switch (error.code) {
                     case 'auth/user-not-found':
@@ -99,6 +175,9 @@ export default class Login extends Component {
                                 <Text style={styles.loginText}>Sign Up</Text>
                         </TouchableOpacity>
                     </View>
+                    <View style={{alignSelf:'center',margin:20,borderWidth:5,borderColor:'orange'}}>
+                        {this.showModal()}
+                    </View>
                     </View>
                 </TouchableWithoutFeedback>
             </KeyboardAvoidingView>
@@ -132,5 +211,23 @@ const styles = StyleSheet.create({
     borderRadius:8,
     width:100 ,
     alignItems:'center'   
-  }
+  },
+  modalInput: {
+    width:250,
+    height:35,
+    borderWidth:2,
+    borderRadius:10,
+    marginHorizontal:15,
+    marginBottom:5,
+    paddingLeft:10
+},
+modalTitle: {
+    fontSize:35,
+    fontWeight:'bold',
+    alignSelf:'center',
+    margin:10
+},
+modalScroll: {
+    width:'100%'
+}
 });
