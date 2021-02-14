@@ -90,7 +90,8 @@ export default class Login extends Component {
         if (email && password) {
             try {
                 const response = await firebase.auth().signInWithEmailAndPassword(email,password)
-                return Alert.alert('Loged in Succesfully'),console.log('loged in succesfully')
+                this.props.navigation.navigate('HomeScreen')
+                console.log('Loged in succesfully')
             } catch (error) {
                 switch (error.code) {
                     case 'auth/user-not-found':
@@ -102,7 +103,8 @@ export default class Login extends Component {
                             console.log('incorrect email or password');
                         break;
                     default:
-
+                            Alert.alert(error.message);
+                            console.log(error.message)
                         break;
                 }
             }
@@ -114,7 +116,7 @@ export default class Login extends Component {
         if (password == cpassword) {
             firebase.auth().createUserWithEmailAndPassword(email,password)
                 .then((response)=>{
-                    return Alert.alert('User Added','User Added Succesfully')
+                    return Alert.alert('User Added','User Added Succesfully, Please Login to Continue')
                 })
                 .catch(function(error){
                     var errorCode = error.code;
@@ -139,7 +141,7 @@ export default class Login extends Component {
                     <View>
                         <Header/>
                     <View>
-                        <Image style={{width:'256px',height:'157.5px',margin:30,marginBottom:50,alignSelf:'center'}} source ={require('../assets/barter.png')}/>
+                        <Image style={{width:256,height:157.5,margin:30,marginBottom:50,alignSelf:'center'}} source ={require('../assets/barter.png')}/>
                     </View>
                     <View styles={styles.inputView}>
                         <View style={{flexDirection:'row',alignSelf:'center',marginBottom:15}}>
