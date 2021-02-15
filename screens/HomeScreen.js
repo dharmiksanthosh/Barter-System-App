@@ -1,62 +1,72 @@
 import * as React from 'react';
-import { View, Text, FlatList, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
 import Constants from 'expo-constants';
-import { Header, ListItem } from 'react-native-elements'
-import { SafeAreaProvider } from 'react-native-safe-area-context'
+import { Header, ListItem } from 'react-native-elements';
+import * as firebase from 'firebase';
 import db from '../config';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-export default class HomeScreen extends React.Component {
+export default class Home extends React.Component {
     constructor(){
-        super();
+        super()
         this.state={
-            allRequests: []
+            requestedItemList: [],
         }
     }
-    getRequests = async ()=>{
-        const reqs = await db.collection('exchange_requests').get()
-        reqs.docs.map((doc)=>{
-            this.setState({
-                allRequests: [doc.data()]
+    getRequestedItemList =()=>{
+        this.requestRef = db.collection('exchange_requests')
+            .onSnapshot((snapshot)=>{
+                var requestedItemList = snapshot.docs.map(document=>document.data());
+                console.log(requestedItemList)
+                this.setState({
+                    requestedItemList: requestedItemList
+                })
+                console.log(this.state.requestedItemList)
             })
-            console.log(doc.data())
-        })
     }
     componentDidMount(){
-        this.getRequests()
-    }
-    renderItem = ( {item, i} )=>{
-        console.log(item.item_name);
-        return(
-            <ListItem
-                key={i}
-                title={item.item_name}
-                subtitle={item.description}
-                titleStyle={{ color: 'black', fontWeight: 'bold'}}
-                rightElement={
-                    <TouchableOpacity style={{width:100,height:70}}>
-                        <Text style={{color: '#fff'}}>Exchange</Text>
-                    </TouchableOpacity>
-                }/>
-        )
+        this.getRequestedItemList();
     }
     render(){
         return(
             <SafeAreaProvider>
-                <View style={{paddingTop:Constants.statusBarHeight}}>
-                    <Header
-                        centerComponent={{ text: 'Home', style: { color: '#000', fontWeight: 'bold', fontSize:20 }}}
-                        containerStyle={{
-                            backgroundColor: '#f4c92d',
-                            justifyContent: 'space-around',
-                        }}/>
-                    <View>
-                        <FlatList
-                            keyExtractor={this.keyExtractor}
-                            data={this.state.allRequests}
-                            renderItem={this.renderItem}/>
-                    </View>
+            <View style={{paddingTop:Constants.statusBarHeight}}>
+                <Header
+                    centerComponent={{ text: 'Home', style: { color: '#000', fontWeight: 'bold', fontSize: '30' }}}
+                    containerStyle={{
+                        backgroundColor: '#f4c92d'}}/>
+                <View>
+                    <FlatList
+                        keyExtractor={(item,index)=>index.toString()}
+                        data={this.state.requestedItemList}
+                        renderItem={({item,key})=>{
+                            return (
+                                <ListItem
+                                    key={key}
+                                    bottomDivider>
+                                        <ListItem.Content style={{flexDirection:'row',justifyContent:'space-evenly'}}>
+                                            <ListItem.Title style={{color:'#000',fontWeight:'bold'}}>{item.item_description}</ListItem.Title>
+                                            <ListItem.Subtitle style={{color:'#090',fontWeight:'bold'}}>{item.description}</ListItem.Subtitle>
+                                            <TouchableOpacity
+                                                style={styles.button}>
+                                                    <Text style={{color:'black',alignItems:'center',justifyContent:'center'}}>View</Text>
+                                            </TouchableOpacity>
+                                        </ListItem.Content>
+                                </ListItem>
+                            )
+                        }}
+                    />
                 </View>
+            </View>
             </SafeAreaProvider>
         );
     }
 }
+
+const styles = StyleSheet.create({
+    button:{
+        width:40,
+        height:20,
+        backgroundColor:'orange'
+    }
+})

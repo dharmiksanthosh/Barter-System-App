@@ -170,13 +170,6 @@ export default class Login extends Component {
                                 <Text style={styles.loginText}>Login</Text>
                         </TouchableOpacity>
                     </View>
-                    <View>
-                        <TouchableOpacity
-                            style={[styles.login,{marginTop:5}]}
-                            onPress={()=>{}}>
-                                <Text style={styles.loginText}>Sign Up</Text>
-                        </TouchableOpacity>
-                    </View>
                     <View style={{alignSelf:'center',margin:20,borderWidth:5,borderColor:'orange'}}>
                         {this.showModal()}
                     </View>
