@@ -1,10 +1,11 @@
 import * as React from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
 import Constants from 'expo-constants';
-import { Header, ListItem } from 'react-native-elements';
-import * as firebase from 'firebase';
+import { ListItem } from 'react-native-elements';
 import db from '../config';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import MyHeader from '../conponents/MyHeader'
+import { ScrollView } from 'react-native-gesture-handler';
 
 export default class Home extends React.Component {
     constructor(){
@@ -31,31 +32,36 @@ export default class Home extends React.Component {
         return(
             <SafeAreaProvider>
             <View style={{paddingTop:Constants.statusBarHeight}}>
-                <Header
-                    centerComponent={{ text: 'Home', style: { color: '#000', fontWeight: 'bold', fontSize: '30' }}}
-                    containerStyle={{
-                        backgroundColor: '#f4c92d'}}/>
+                <MyHeader
+                    title='Home'
+                    bellPressAction={()=>{this.props.navigation.navigate('Notification')}}
+                    barPressAction={()=>{this.props.navigation.toggleDrawer()}}
+                />
                 <View>
-                    <FlatList
-                        keyExtractor={(item,index)=>index.toString()}
-                        data={this.state.requestedItemList}
-                        renderItem={({item,key})=>{
-                            return (
-                                <ListItem
-                                    key={key}
-                                    bottomDivider>
-                                        <ListItem.Content style={{flexDirection:'row',justifyContent:'space-evenly'}}>
-                                            <ListItem.Title style={{color:'#000',fontWeight:'bold'}}>{item.item_description}</ListItem.Title>
-                                            <ListItem.Subtitle style={{color:'#090',fontWeight:'bold'}}>{item.description}</ListItem.Subtitle>
-                                            <TouchableOpacity
-                                                style={styles.button}>
-                                                    <Text style={{color:'black',alignItems:'center',justifyContent:'center'}}>View</Text>
-                                            </TouchableOpacity>
-                                        </ListItem.Content>
-                                </ListItem>
-                            )
-                        }}
-                    />
+                    <ScrollView>
+                        <FlatList
+                            keyExtractor={(item,index)=>index.toString()}
+                            data={this.state.requestedItemList}
+                            renderItem={({item,key})=>{
+                                return (
+                                    <ListItem
+                                        key={key}
+                                        bottomDivider>
+                                        <Image style={{height:100,width:100}} source={{uri:item.imageUrl}}/>    
+                                            <ListItem.Content style={{flexDirection:'row',justifyContent:'space-evenly'}}>
+                                                <ListItem.Title style={{color:'#000',fontWeight:'bold'}}>{item.item_description}</ListItem.Title>
+                                                <ListItem.Subtitle style={{color:'#090',fontWeight:'bold'}}>{item.description}</ListItem.Subtitle>
+                                                <TouchableOpacity
+                                                    style={styles.button}
+                                                    onPress={()=>{this.props.navigation.navigate('ReciverList',{'details':item})}}>
+                                                        <Text style={{color:'black',alignItems:'center',justifyContent:'center'}}>View</Text>
+                                                </TouchableOpacity>
+                                            </ListItem.Content>
+                                    </ListItem>
+                                )
+                            }}
+                        />
+                    </ScrollView>
                 </View>
             </View>
             </SafeAreaProvider>

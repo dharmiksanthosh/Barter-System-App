@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, FlatList, Alert } from 'react-native';
 import Constants from 'expo-constants';
-import { Header } from 'react-native-elements'
+import MyHeader from '../conponents/MyHeader'
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import db from '../config';
 
@@ -30,12 +30,11 @@ export default class ExchangeScreen extends React.Component {
         return(
             <SafeAreaProvider>
                 <View style={{paddingTop:Constants.statusBarHeight}}>
-                    <Header
-                            centerComponent={{ text: 'Exchange', style: { color: '#000', fontWeight: 'bold', fontSize:20 }}}
-                            containerStyle={{
-                                backgroundColor: '#f4c92d',
-                                justifyContent: 'space-around',
-                            }}/>
+                <MyHeader
+                    title='Exchange'
+                    bellPressAction={()=>{this.props.navigation.navigate('Notification')}}
+                    barPressAction={()=>{this.props.navigation.toggleDrawer()}}
+                />
                 </View>
                 <View style={{flex:1,alignItems: 'center'}}>
                     <Image style={{width:200,height:200, alignSelf:'center'}} source={require('../assets/exchange.png')}/>
